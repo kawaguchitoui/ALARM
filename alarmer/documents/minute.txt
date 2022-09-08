@@ -1,0 +1,1 @@
+$what_do分（$min_minute~$max_minute｜入力してエンターを押してください）

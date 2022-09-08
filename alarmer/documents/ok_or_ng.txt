@@ -1,0 +1,5 @@
+$ok_or_ng_message
+起きる時刻（WAKEUP_TIME）：$wakeup_time
+アラームを鳴らし始める時刻(START_ALARM_TIME)：$start_alarm_time
+アラームを何分ごとに鳴らすか(INTERVAL)：$interval
+アラームを何分鳴らし続けるか(RINGING_TIME)：$ringing_time
