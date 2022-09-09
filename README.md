@@ -18,9 +18,7 @@ __毎日いくつもアラームを手動でオンオフすることから解放
 * ソース管理はGit（Push, Fetch, Mergeの機能は使いました）
 
 # 実行方法
-1. 以下のURLからダウンロードするか、alarmerフォルダーとmain.pyを実行するディレクトリへ置いてください。
-
-<https://drive.google.com/file/d/1GDHhDfDIABEA0NHBWp3L2DNclNhF_OpS/view?usp=sharing>
+1. 「code」→「download zip」でダウンロードしてください。
 
 2. 以下のコマンドでインストールしてください。
 
