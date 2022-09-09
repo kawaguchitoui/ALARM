@@ -20,7 +20,7 @@ __毎日いくつもアラームを手動でオンオフすることから解放
 # 実行方法
 1. 以下のURLからダウンロードするか、alarmerフォルダーとmain.pyを実行するディレクトリへ置いてください。
 
-<https://xxxx>
+<https://drive.google.com/drive/folders/1Heomd6RbmRLieubFTgB1dbPO-FMohCbc?usp=sharing>
 
 2. 以下のコマンドでインストールしてください。
 
