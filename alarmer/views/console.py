@@ -10,16 +10,6 @@ def get_document_dir_path():
   Returns:
     document_dir_path (str): documentsディレクトリのパス
   """
-  # document_dir_path = None
-
-  # try:
-  #   import settings
-  #   if settings.DOCUMENT_PATH:
-  #     document_dir_path = settings.DOCUMENT_PATH
-  # except ImportError:
-  #   pass
-
-  # if document_dir_path is None:
   base_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
   document_dir_path = os.path.join(base_dir_path, 'documents')
 
