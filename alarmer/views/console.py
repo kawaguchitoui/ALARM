@@ -64,3 +64,38 @@ def get_document(document_file_path, color = None):
     contents = termcolor.colored(contents,color)
 
     return string.Template(contents)
+
+
+def make_message_from_document(document_file_name, color, 
+sub_error_message = '',  sub_what_do = '', sub_min_minute = '', sub_max_minute = '', 
+sub_now = '', sub_ok_or_ng_message = '', sub_wakeup_time = '', sub_start_alarm_time = '', 
+sub_interval = '', sub_ringing_time = ''):
+  """documentsディレクトリのなかのテキストファイル
+     の内容を書き換え、臨機応変にメッセージを作る
+
+  Args:
+    document_file_name (str): 開きたいファイルの名前
+    color: (str): ターミナルに出力するときの文字の色
+        詳細: https://pypi.python.org/pypi/termcolor
+    以下 (str): ファイルの内容を書き換えるための文
+
+  Returns:
+    message (str): 作成したメッセージ
+  """
+
+  message = get_document(document_file_name, color)
+
+  message = message.substitute(
+    error_message = sub_error_message,
+    what_do = sub_what_do,
+    min_minute = sub_min_minute,
+    max_minute = sub_max_minute,
+    now = sub_now,
+    ok_or_ng_message = sub_ok_or_ng_message,
+    wakeup_time = sub_wakeup_time,
+    start_alarm_time = sub_start_alarm_time,
+    interval = sub_interval,
+    ringing_time = sub_ringing_time,
+  )
+
+  return message
