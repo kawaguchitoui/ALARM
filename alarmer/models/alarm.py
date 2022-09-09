@@ -28,11 +28,11 @@ class AlarmRobot(Robot):
       self.history_model = history.HistoryModel()
 
 
-  def __set_minute(self, minute_sub_message, min_minute, max_minute):
+  def __set_minute(self, minute_message, min_minute, max_minute):
     """アラームの「分」を設定する
 
     Args:
-      minute_sub_message (str): minute.txtの内容を書き換えるための文
+      minute_message (str): minute.txtの内容を書き換えるための文
       min_minute (int): minute.txtの内容を書き換えるための数字、
         ユーザーが入力できる「分」の最小値
       max_minute (int): minute.txtの内容を書き換えるための数字、
@@ -42,45 +42,44 @@ class AlarmRobot(Robot):
       minute (int): アラームの「分」
     """
     while True:
-      text = console.get_document('minute.txt', self.speak_color)
-      minute = input(text.substitute(
-        what_do = minute_sub_message,
-        min_minute = min_minute,
-        max_minute = max_minute
-      ))
+      message = console.make_message_from_document(
+        'minute.txt', self.speak_color, 
+        sub_what_do = minute_message,
+        sub_min_minute = min_minute, sub_max_minute = max_minute
+      )
+      minute = input(message)
+
 
       try:
         minute = int(minute)
       except ValueError:
-        error_text = console.get_document(
-          'error_message.txt', self.error_speak_color
+        message = console.make_message_from_document(
+          'error_message.txt', self.error_speak_color, 
+          sub_error_message = f'{min_minute}から{max_minute}の整数を'
         )
-        print(error_text.substitute(
-          error_message = f'{min_minute}から{max_minute}の整数を'
-        ))
+        print(message)
         continue
 
       if min_minute <= minute and minute <= max_minute:
         break
       else:
-        error_text = console.get_document(
-          'error_message.txt',self.error_speak_color
+        message = console.make_message_from_document(
+          'error_message.txt', self.error_speak_color, 
+          sub_error_message = f'{min_minute}から{max_minute}の整数を'
         )
-        print(error_text.substitute(
-          error_message = f'{min_minute}から{max_minute}の整数を'
-        ))
+        print(message)
         continue
 
     return minute
 
 
-  def __set_hour_and_minute(self, hour_sub_message, minute_sub_message,
-    min_minute, max_minute, is_on=True):
+  def __set_hour_and_minute(self, hour_message, minute_message,
+    min_minute, max_minute, is_on = True):
     """アラームの「時」と「分」を設定する
 
     Args:
-      hour_sub_message (str): minute.txtの内容を書き換えるための文
-      minute_sub_message (str): minute.txtの内容を書き換えるための文
+      hour_message (str): minute.txtの内容を書き換えるための文
+      minute_message (str): minute.txtの内容を書き換えるための文
       min_minute (int): minute.txtの内容を書き換えるための数字、
         ユーザーが入力できる「分」の最小値
       max_minute (int): minute.txtの内容を書き換えるための数字、
@@ -93,106 +92,55 @@ class AlarmRobot(Robot):
     """
     if is_on:
       while True:
-        text = console.get_document('hour.txt', self.speak_color)
-        hour = input(text.substitute(what_do = hour_sub_message))
+        message = console.make_message_from_document(
+          'hour.txt', self.speak_color, 
+          sub_what_do = hour_message
+        )
+        hour = input(message)
 
         try:
           hour = int(hour)
         except ValueError:
-          error_text = console.get_document(
-            'error_message.txt', self.error_speak_color
+          message = console.make_message_from_document(
+            'error_message.txt', self.error_speak_color, 
+            sub_error_message = '0から23の整数を'
           )
-          print(error_text.substitute(error_message = '0から23の整数を'))
+          print(message)
           continue
 
         if 0 <= hour and hour <=23:
           break
         else:
-          error_text = console.get_document(
-            'error_message.txt', self.error_speak_color
+          message = console.make_message_from_document(
+            'error_message.txt', self.error_speak_color, 
+            sub_error_message = '0から23の整数を'
           )
-          print(error_text.substitute(error_message = '0から23の整数を'))
+          print(message)
           continue
     else:
       hour = 0
 
-    minute = self.__set_minute(minute_sub_message, min_minute,max_minute)
+    minute = self.__set_minute(minute_message, min_minute, max_minute)
 
     return hour, minute
-
-  
-  def __judge_correct_time_setting(self, wakeup_hour, wakeup_minute, 
-  start_alarm_hour, start_alarm_minute, interval_hour, interval_minute, 
-  ringing_hour, ringing_minute):
-    """アラームの「時」と「分」の設定に矛盾がないか判断する
-
-    Args:
-      wakeup_hour (int): 設定された、起きる時刻の「時」
-      wakeup_minute (int): 設定された、起きる時刻の「分」
-      start_alarm_hour (int): 設定された、アラームを鳴らし始める時刻の「時」
-      start_alarm_minute (int): 設定された、アラームを鳴らし始める時刻の「時」
-      interval_hour (int): 設定された、アラームを鳴らす間隔の「時」 = 0
-      interval_minute (int): 設定された、アラームを鳴らす間隔の「分」
-      ringing_hour (int): 設定された、アラームを鳴らし続ける時間の「時」 = 0
-      ringing_minute (int): 設定された、アラームを鳴らし続ける時間の「分」
-
-    Returns:
-      is_ok (bool): アラームの「時」と「分」の設定に矛盾がないかどうか
-    """
-    is_ok = True
-
-    if wakeup_hour + wakeup_minute / 60 \
-       < start_alarm_hour + start_alarm_minute / 60 \
-       or \
-       (wakeup_hour + wakeup_minute / 60) \
-       - (start_alarm_hour + start_alarm_minute / 60) \
-       < interval_hour + interval_minute / 60:
-      text = console.get_document('ok_or_ng.txt', self.error_speak_color)
-      print(text.substitute(
-        ok_or_ng_message = 
-        'エラーが起こりました。\n'
-        +'以下の点を確認し、もう一度設定してください。\n'
-        +'・WAKEUP_TIMEがSTART_ALARM_TIMEより早い\n'
-        +'・WAKEUP_TIMEとSTART_ALARM_TIMEの時間差がINTERVALより短い\n',
-        wakeup_time = 
-          f"{str(wakeup_hour).zfill(2)}:{str(wakeup_minute).zfill(2)}",
-        start_alarm_time = 
-          f"{str(start_alarm_hour).zfill(2)}:{str(start_alarm_minute).zfill(2)}",
-        interval = 
-          f"{str(interval_hour).zfill(2)}:{str(interval_minute).zfill(2)}",
-        ringing_time = 
-          f"{str(ringing_hour).zfill(2)}:{str(ringing_minute).zfill(2)}",
-      ))
-
-      is_ok = False
-
-    return is_ok
 
 
   def __set_all_time(self):
     """起きる時刻、アラームを鳴らし始める時刻、何分ごとにアラームを鳴らすか、
        何分間アラームを鳴らし続けるか、を設定し、CSVファイルに書き込む関数を呼ぶ
     """
-    while True:
-      self.__wakeup_hour, self.__wakeup_minute \
-        = self.__set_hour_and_minute(
-          '起きますか？', '', 0, 59)
-      self.__start_alarm_hour, self.__start_alarm_minute \
-        = self.__set_hour_and_minute(
-          'アラームを鳴らし始めますか？', '', 0, 59)
-      interval_hour, self.__interval_minute \
-        = self.__set_hour_and_minute(
-          '', '何分おきにアラームを鳴らしますか？\n' ,5, 59, False)
-      ringing_hour, self.__ringing_minute \
-        = self.__set_hour_and_minute(
-          '', '何分間アラームを鳴らし続けますか？\n', 1, 3, False)
-
-      correct_time_setting = self.__judge_correct_time_setting(
-        self.__wakeup_hour, self.__wakeup_minute, self.__start_alarm_hour,
-        self.__start_alarm_minute, interval_hour, self.__interval_minute,
-        ringing_hour, self.__ringing_minute)
-      if correct_time_setting:
-        break
+    self.__wakeup_hour, self.__wakeup_minute \
+      = self.__set_hour_and_minute(
+        '起きますか？', '', 0, 59)
+    self.__start_alarm_hour, self.__start_alarm_minute \
+      = self.__set_hour_and_minute(
+        'アラームを鳴らし始めますか？', '', 0, 59)
+    interval_hour, self.__interval_minute \
+      = self.__set_hour_and_minute(
+        '', '何分おきにアラームを鳴らしますか？\n' ,5, 59, False)
+    ringing_hour, self.__ringing_minute \
+      = self.__set_hour_and_minute(
+        '', '何分間アラームを鳴らし続けますか？\n', 1, 3, False)
 
     self.wakeup_time = \
     f"{str(self.__wakeup_hour).zfill(2)}:{str(self.__wakeup_minute).zfill(2)}"
@@ -203,14 +151,15 @@ class AlarmRobot(Robot):
     self.__ringing_time = \
     f"{str(ringing_hour).zfill(2)}:{str(self.__ringing_minute).zfill(2)}"
 
-    text = console.get_document('ok_or_ng.txt', self.speak_color)
-    print(text.substitute(
-      ok_or_ng_message = '以下の通りに設定しました。\n',
-      wakeup_time = self.wakeup_time,
-      start_alarm_time = self.start_alarm_time,
-      interval = self.__interval,
-      ringing_time = self.__ringing_time,
-    ))
+    message = console.make_message_from_document(
+      'ok_or_ng.txt', self.speak_color, 
+       sub_ok_or_ng_message = '以下の通りに設定しました。\n',
+       sub_wakeup_time = self.wakeup_time,
+       sub_start_alarm_time = self.start_alarm_time,
+       sub_interval = self.__interval,
+       sub_ringing_time = self.__ringing_time,
+    )
+    print(message)
 
     time_data = [
       self.wakeup_time,
@@ -231,8 +180,10 @@ class AlarmRobot(Robot):
       is_yes = False
     else:
       while True:
-        text = console.get_document('past_settings.txt', self.speak_color)
-        input_is_yes = input(text.substitute())
+        message = console.make_message_from_document(
+          'past_settings.txt', self.speak_color
+        )
+        input_is_yes = input(message)
         if input_is_yes.lower() == 'n' or input_is_yes.lower() == 'no':
           is_yes = False
           break
@@ -240,12 +191,12 @@ class AlarmRobot(Robot):
           is_yes = True
           break
         else:
-          error_message = console.get_document(
-            'error_message.txt', self.error_speak_color
+          message = console.make_message_from_document(
+            'error_message.txt', self.error_speak_color, 
+             sub_error_message = 
+             'y, yes, n, noのいずれか（大文字・小文字は問いません）を'
           )
-          print(error_message.substitute(
-            error_message='y, yes, n, noのいずれか（大文字・小文字は問いません）を'
-          ))
+          print(message)
           continue
     
     if is_yes:
@@ -280,22 +231,25 @@ class AlarmRobot(Robot):
   def __fetch_past_settings(self):
     """どの履歴を使用するか決定する"""
     rows = self.history_model.load_history_include_header()
-    is_ok=False
+    is_ok = False
 
     while True:
-      text = console.get_document('which_setting.txt', self.speak_color)
-      user_id_choice = input(text.substitute())
+      message = console.make_message_from_document(
+        'which_setting.txt', self.speak_color
+      )
+      user_id_choice = input(message)
       
       for j in range(1, (int(rows[-1][0]) + 1)):
         if user_id_choice == rows[j][0]:
-          text = console.get_document('ok_or_ng.txt', self.speak_color)
-          print(text.substitute(
-            ok_or_ng_message = '以下の通りに設定しました。\n',
-            wakeup_time = rows[j][1],
-            start_alarm_time = rows[j][2],
-            interval = rows[j][3],
-            ringing_time = rows[j][4],
-          ))
+          message = console.make_message_from_document(
+            'ok_or_ng.txt', self.speak_color,
+             sub_ok_or_ng_message = '以下の通りに設定しました。\n',
+             sub_wakeup_time = rows[j][1],
+             sub_start_alarm_time = rows[j][2],
+             sub_interval = rows[j][3],
+             sub_ringing_time = rows[j][4],
+          )
+          print(message)
 
           self.wakeup_time = rows[j][1]
           self.start_alarm_time = rows[j][2]
@@ -311,18 +265,17 @@ class AlarmRobot(Robot):
           not_use ,self.__ringing_minute = \
             self.__undone_time_to_int(rows[j][4])
 
-          is_ok=True
+          is_ok = True
           break
 
       if is_ok:
         break
       else:
-        error_message = console.get_document(
-          'error_message.txt', self.error_speak_color
+        message = console.make_message_from_document(
+          'error_message.txt', self.error_speak_color, 
+           sub_error_message = '表示されているIDのいずれかを'
         )
-        print(error_message.substitute(
-          error_message = '表示されているIDのいずれかを'
-        ))
+        print(message)
         continue
 
 
@@ -339,7 +292,7 @@ class AlarmRobot(Robot):
       pass
     
     if music is None:
-      music=console.find_document('LGvoice.mp3')
+      music = console.find_document('LGvoice.mp3')
     pygame.mixer.music.load(music)
     pygame.mixer.music.set_volume(DEFAULT_SOUND_VOLUIME)
 
@@ -348,8 +301,10 @@ class AlarmRobot(Robot):
     """音を鳴らす"""
     self.__set_music()
     now = datetime.datetime.now().strftime('%H:%M')
-    text = console.get_document('hello.txt', self.error_speak_color)
-    print(text.substitute(now = now))
+    message = console.make_message_from_document(
+      'hello.txt', self.error_speak_color, sub_now = now
+    )
+    print(message)
     pygame.mixer.music.play(-1)
     time.sleep(self.__ringing_minute * 60)
 
