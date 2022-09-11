@@ -25,7 +25,7 @@ class HistoryModel(CsvModel):
     if csv_file is None:
       csv_file = self.__get_csv_file_name()
     super().__init__(csv_file)
-    self.csv_file_column = [
+    self.__csv_file_column = [
       HISTORY_COLUMN_ID,
       HISTORY_COLUMN_WAKEUP_TIME,
       HISTORY_COLUMN_START_ALARM_TIME,
@@ -114,7 +114,7 @@ class HistoryModel(CsvModel):
       history_data (list): アラームの履歴
     """
     with open(self.csv_file, 'w') as csv_file:
-      writer = csv.DictWriter(csv_file,fieldnames = self.csv_file_column)
+      writer = csv.DictWriter(csv_file,fieldnames = self.__csv_file_column)
       writer.writeheader()
       for id ,data in zip(range(1, self.__id_counter + 2), history_data):
         writer.writerow({
