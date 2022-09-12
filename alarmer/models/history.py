@@ -49,7 +49,6 @@ class HistoryModel(CsvModel):
 
       for row in reader:
         history_data_elements = [
-          row[HISTORY_COLUMN_ID], 
           row[HISTORY_COLUMN_WAKEUP_TIME], 
           row[HISTORY_COLUMN_START_ALARM_TIME], 
           row[HISTORY_COLUMN_INTERVAL], 
